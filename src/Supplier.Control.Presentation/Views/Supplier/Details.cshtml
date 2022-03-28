@@ -1,0 +1,48 @@
+﻿@using Supplier.Control.Domain.Models
+@model SupplierModel
+
+@{
+    ViewData["Title"] = "Detalhes";
+}
+
+<div>
+    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+</div>
+
+<hr />
+
+<div>
+    <div class="card">
+        <div class="card-header">
+            Detalhes
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Document)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Document)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.IsActive)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.IsActive)
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<div>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.Id">Edit>Editar</a>
+</div>

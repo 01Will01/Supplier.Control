@@ -1,0 +1,93 @@
+﻿@using Supplier.Control.Presentation.Models.Supplier
+@model SupplierUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Atualizar os dados</h1>
+
+<div>
+    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="card">
+        <div class="card-header">
+            Fornecedor
+        </div>
+        <div class="card-body">
+            <div class="col-md-4">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="SupplierModel.Id" />
+                    <div class="form-group">
+                        <label asp-for="SupplierModel.Name" class="control-label"></label>
+                        <input asp-for="SupplierModel.Name" class="form-control" />
+                        <span asp-validation-for="SupplierModel.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SupplierModel.Document" class="control-label"></label>
+                        <input asp-for="SupplierModel.Document" class="form-control" />
+                        <span asp-validation-for="SupplierModel.Document" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="SupplierModel.IsActive" /> @Html.DisplayNameFor(model => model.SupplierModel.IsActive)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Salvar" class="btn btn-success" />
+                    </div>
+
+
+                    <br />
+
+                    @{
+                        string showGroupMessage = Model.HasResult ? "display: none;" : "display: block;";
+                        bool isMessageSuccess = Convert.ToBoolean(Model?.SuccessAction);
+
+                        string showMessageSuccess = isMessageSuccess ? "display: block;" : "display: none;";
+                        string showMessageAlert = isMessageSuccess ? "display: nome" : "display: none;";
+
+                        string message = Model?.Message;
+                    }
+
+                    <div style="@showGroupMessage">
+
+                        <div class="alert alert-success" role="alert" style="@showMessageSuccess">
+                            <h4 class="alert-heading">Concluído!</h4>
+                            <p>Fornercedor cadastrado com sucesso.</p>
+                            <hr>
+                            <p class="mb-0">@message</p>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="@showMessageAlert">
+                            <strong>Erro!</strong> Fornecedor não foi cadastrado.
+                            <hr>
+                            <p class="mb-0">@message</p>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

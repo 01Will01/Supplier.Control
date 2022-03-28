@@ -1,0 +1,84 @@
+﻿@using Supplier.Control.Presentation.Models.Supplier
+@model SupplierRemoveViewModel
+
+@{
+    ViewData["Title"] = "Remoção";
+}
+
+<h1>Remover</h1>
+
+<div>
+    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+</div>
+
+<hr />
+
+<h3>Realmente quer remover este fornecedor?</h3>
+<div>
+    <div class="card">
+        <div class="card-header">
+            Fornecedor
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.SupplierModel.Name)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.SupplierModel.Name)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.SupplierModel.Document)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.SupplierModel.Document)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.SupplierModel.IsActive)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.SupplierModel.IsActive)
+                </dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="SupplierModel.Id" />
+                <input type="submit" value="Retirar" class="btn btn-danger" /> |
+            </form>
+
+            @{
+                string showGroupMessage = Model.HasResult ? "display: none;" : "display: block;";
+                bool isMessageSuccess = Convert.ToBoolean(Model?.SuccessAction);
+
+                string showMessageSuccess = isMessageSuccess ? "display: block;" : "display: none;";
+                string showMessageAlert = isMessageSuccess ? "display: nome" : "display: none;";
+
+                string message = Model?.Message;
+            }
+
+            <div style="@showGroupMessage">
+
+                <div class="alert alert-success" role="alert" style="@showMessageSuccess">
+                    <h4 class="alert-heading">Concluído!</h4>
+                    <p>Fornercedor cadastrado com sucesso.</p>
+                    <hr>
+                    <p class="mb-0">@message</p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="alert alert-warning alert-dismissible fade show" role="alert" style="@showMessageAlert">
+                    <strong>Erro!</strong> Fornecedor não foi cadastrado.
+                    <hr>
+                    <p class="mb-0">@message</p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
