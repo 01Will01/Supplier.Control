@@ -1,12 +1,14 @@
-﻿#nullable disable
+﻿using Flunt.Notifications;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Supplier.Control.Domain.Commands.Input.Suppliter;
 using Supplier.Control.Domain.Commands.Output;
+using Supplier.Control.Domain.Extensions;
 using Supplier.Control.Domain.Interfaces.Handler.Commands;
 using Supplier.Control.Domain.Interfaces.Queries;
 using Supplier.Control.Domain.Models;
 using Supplier.Control.Presentation.Models.Supplier;
+using Supplier.Control.Shared;
 
 namespace Supplier.Control.Presentation.Controllers
 {
@@ -14,27 +16,42 @@ namespace Supplier.Control.Presentation.Controllers
     {
         private readonly ISupplierHandlerCommand _supplierHandlerCommand;
         private readonly ISupplierQuery _supplierQuery;
+        private readonly IMemoryCache _memoryCache;
 
-        public SupplierController(ISupplierHandlerCommand supplierHandlerCommand, ISupplierQuery supplierQuery)
+        public SupplierController(ISupplierHandlerCommand supplierHandlerCommand, ISupplierQuery supplierQuery, IMemoryCache memoryCache)
         {
-            _supplierHandlerCommand = supplierHandlerCommand;
-            _supplierQuery = supplierQuery;
+            _supplierHandlerCommand = supplierHandlerCommand ?? throw new ArgumentNullException(nameof(supplierHandlerCommand));
+            _supplierQuery = supplierQuery ?? throw new ArgumentNullException(nameof(supplierQuery));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _supplierQuery.GetAll());
+            var suppliers = _supplierQuery.GetAll();
+
+            suppliers?.ForEach(supplier => supplier.Document = supplier.Document.Length is 11 ? supplier.Document.PatterCPF() : supplier.Document.PatterCNPJ());
+            var view = new SupplierOverviewViewModel()
+            {
+                SupplierModels = suppliers,
+                HasResult = CheckMessage(Settings.KEYMESSAGE, out var result),
+                Message = result?.Message,
+                SuccessAction = Convert.ToBoolean(result?.Success)
+            };
+
+            return View(view);
         }
 
-        public async Task<IActionResult> Details(Guid? id)
+        public IActionResult Details(Guid? id)
         {
             if (id is null) return NotFound();
 
-            var supplierModel = await _supplierQuery.GetById(id);
+            var supplier = _supplierQuery.GetById(id);
 
-            if (supplierModel is null) return NotFound();
+            if (supplier is null) return NotFound();
 
-            return View(supplierModel);
+            supplier.Document = supplier.Document.Length is 11 ? supplier.Document.PatterCPF() : supplier.Document.PatterCNPJ();
+
+            return View(supplier);
         }
 
         public IActionResult Create()
@@ -52,122 +69,132 @@ namespace Supplier.Control.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SupplierCreateViewModel supplierView)
         {
-
             var viewData = new SupplierCreateViewModel()
             {
-                CanCreate = false,
+                CanCreate = true,
                 HasResult = true,
-                Message = "Valores inválidos.",
+                Message = "Valores inválidos.".TransformInList(),
                 SuccessAction = false,
                 SupplierModel = new SupplierModel()
             };
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(viewData);
+
+            var command = new SupplierCreateCommand()
             {
-                var command = new SupplierCreateCommand()
-                {
-                    Document = supplierView.SupplierModel.Document,
-                    IsActive = supplierView.SupplierModel.IsActive,
-                    Name = supplierView.SupplierModel.Name
-                };
+                Document = supplierView.SupplierModel.Document.StandardizeSeparator(string.Empty),
+                IsActive = supplierView.SupplierModel.IsActive,
+                Name = supplierView.SupplierModel.Name
+            };
 
-                var response = await _supplierHandlerCommand.Handle(command) as GenericCommandResult;
+            var response = await _supplierHandlerCommand.Handle(command) as GenericCommandResult;
 
-                viewData.Message = response.Message;
-                viewData.SuccessAction = response.Success;
+            viewData.SuccessAction = Convert.ToBoolean(response?.Success);
 
-                if (response.Success)
-                    viewData.SupplierModel = response.Data as SupplierModel;
+            if (viewData.SuccessAction)
+            {
+                viewData.SupplierModel = supplierView.SupplierModel;
 
-                View(viewData);
-
-                Thread.Sleep(7000);
+                IncludeMessage(Settings.KEYMESSAGE, response);
                 return RedirectToAction(nameof(Index));
+            }
+
+            if (response != null)
+            {
+                viewData.Message.Add(response.Message);
+
+                List<Notification> notifications = response.Data as List<Notification>;
+
+                notifications?.ForEach(notification =>
+                {
+                    viewData.Message.Add(notification.Message);
+                });
+
             }
 
             return View(viewData);
         }
 
-        public async Task<IActionResult> Edit(Guid? id)
+        public ActionResult Edit(Guid? id)
         {
             if (id is null) return NotFound();
 
-            var supplierModel = await _supplierQuery.GetById(id);
+            var supplier = _supplierQuery.GetById(id);
+
+            if (supplier is null) return NotFound();
+
+            supplier.Document = supplier.Document.Length is 11 ? supplier.Document.PatterCPF() : supplier.Document.PatterCNPJ();
 
             var viewData = new SupplierUpdateViewModel()
             {
                 CanUpdate = true,
                 HasResult = false,
-                SupplierModel = supplierModel
+                SupplierModel = supplier
             };
-
-            if (supplierModel is null) return NotFound();
 
             return View(viewData);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, SupplierModel supplier)
+        public async Task<IActionResult> Edit(Guid id, SupplierUpdateViewModel supplierView)
         {
-            if (id != supplier.Id) return NotFound();
+            if (id != supplierView.SupplierModel.Id) return NotFound();
 
             var viewData = new SupplierUpdateViewModel()
             {
-                CanUpdate = false,
+                CanUpdate = true,
                 HasResult = true,
-                Message = "Dados não localizados.",
+                Message = "Dados não localizados.".TransformInList(),
                 SuccessAction = false,
-                SupplierModel = supplier
+                SupplierModel = supplierView.SupplierModel
             };
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(viewData);
+
+            var command = new SupplierUpdateCommand()
             {
-                try
-                {
-                    if (ModelState.IsValid)
-                    {
-                        var command = new SupplierUpdateCommand()
-                        {
-                            Id = id,
-                            Document = supplier.Document,
-                            IsActive = supplier.IsActive,
-                            Name = supplier.Name
-                        };
+                Id = id,
+                Document = supplierView.SupplierModel.Document.StandardizeSeparator(string.Empty),
+                IsActive = supplierView.SupplierModel.IsActive,
+                Name = supplierView.SupplierModel.Name
+            };
 
-                        var response = await _supplierHandlerCommand.Handle(command) as GenericCommandResult;
+            var response = await _supplierHandlerCommand.Handle(command) as GenericCommandResult;
 
-                        viewData.Message = response.Message;
-                        viewData.SuccessAction = response.Success;
+            viewData.SuccessAction = Convert.ToBoolean(response?.Success);
 
-                        if (response.Success)
-                            viewData.SupplierModel = await _supplierQuery.GetById(id);
-                    }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SupplierModelExists(supplier.Id)) return NotFound();
-
-                    else throw;
-
-                }
-
-                View(viewData);
-
-                Thread.Sleep(7000);
+            if (viewData.SuccessAction)
+            {
+                IncludeMessage(Settings.KEYMESSAGE, response);
                 return RedirectToAction(nameof(Index));
+            }
+
+            if (response != null)
+            {
+                viewData.Message.Add(response.Message);
+
+                List<Notification> notifications = response.Data as List<Notification>;
+
+                notifications?.ForEach(notification =>
+                {
+                    viewData.Message.Add(notification.Message);
+                });
+
             }
 
             return View(viewData);
         }
 
-        public async Task<IActionResult> Delete(Guid? id)
+        public IActionResult Delete(Guid? id)
         {
             if (id is null) return NotFound();
 
-            var supplier = await _supplierQuery.GetById(id);
+            var supplier = _supplierQuery.GetById(id);
 
             if (supplier is null) return NotFound();
+
+            supplier.Document = supplier.Document.Length is 11 ? supplier.Document.PatterCPF() : supplier.Document.PatterCNPJ();
 
             var viewData = new SupplierRemoveViewModel()
             {
@@ -183,7 +210,9 @@ namespace Supplier.Control.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var supplier = await _supplierQuery.GetById(id);
+            var supplier = _supplierQuery.GetById(id);
+
+            if (supplier is null) return NoContent();
 
             var command = new SupplierrRemoveCommand()
             {
@@ -197,19 +226,55 @@ namespace Supplier.Control.Presentation.Controllers
 
             var viewData = new SupplierRemoveViewModel()
             {
-                CanRemove = false,
+                CanRemove = true,
                 HasResult = true,
-                SuccessAction = response.Success,
-                Message = response.Message,
+                SuccessAction = Convert.ToBoolean(response?.Success),
+                Message = response?.Message.TransformInList() ?? "Falha no processo.".TransformInList(),
                 SupplierModel = supplier
             };
 
-            return View(viewData); ;
+            if (viewData.SuccessAction)
+            {
+                IncludeMessage(Settings.KEYMESSAGE, response);
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (response != null)
+            {
+                viewData.Message.Add(response.Message);
+
+                List<Notification> notifications = response.Data as List<Notification>;
+
+                notifications?.ForEach(notification =>
+                {
+                    viewData.Message.Add(notification.Message);
+                });
+
+            }
+
+            return View(viewData);
         }
 
-        private bool SupplierModelExists(Guid? id)
+        private void IncludeMessage(string key, GenericCommandResult result)
         {
-            return _supplierQuery.GetById(id).Result != null;
+            _memoryCache.Set(
+                            key,
+                            result,
+                            new MemoryCacheEntryOptions()
+                            {
+                                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(1800),
+                                SlidingExpiration = TimeSpan.FromSeconds(150)
+                            });
+        }
+
+        private bool CheckMessage(string key, out GenericCommandResult result)
+        {
+            bool status = _memoryCache.TryGetValue(key, out result);
+
+            if (status)
+                _memoryCache.Remove(key);
+
+            return status;
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Supplier.Control.Domain.Interfaces.DbContext;
 using Supplier.Control.Domain.Interfaces.Repositories;
 using Supplier.Control.Domain.Models;
+using Supplier.Control.Domain.Validators;
 using Supplier.Control.Infra.Data.Queries;
 
 namespace Supplier.Control.Infra.Data.Repositories
@@ -15,47 +16,52 @@ namespace Supplier.Control.Infra.Data.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<(Guid?, bool)> Create(SupplierModel newSupplier)
+        public async Task<(Guid, bool)> Create(SupplierModel newSupplier)
         {
-            var result = _dbContext?.Suppliers?.AddAsync(newSupplier);
+            newSupplier = CheckParamterValidator.CheckIsNotNull(newSupplier, nameof(newSupplier));
+            _dbContext.Suppliers.Add(newSupplier);
 
-            await _dbContext?.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
-            bool isExist = Convert.ToBoolean((_dbContext?.Suppliers?.Any(x => x.Id == newSupplier.Id)));
+            bool hasCreated = ExistById(newSupplier.Id);
 
-            return (newSupplier.Id, isExist);
+            return (newSupplier.Id, hasCreated);
         }
 
         public async Task<bool> Update(SupplierModel supplier)
         {
-            SupplierModel currentSupplier = _dbContext?.Suppliers.FirstOrDefault(x => x.Id == supplier.Id);
+            supplier = CheckParamterValidator.CheckIsNotNull(supplier, nameof(supplier));
 
-            _dbContext?.Update(supplier);
+            SupplierModel currentSupplier = _dbContext.Suppliers.FirstOrDefault(x => x.Id == supplier.Id);
 
-            await _dbContext?.SaveChangesAsync();
+            _dbContext.DetachLocal(supplier, supplier.Id);
 
-            SupplierModel changeSupplier = _dbContext?.Suppliers.FirstOrDefault(x => x.Id == supplier.Id);
+            _dbContext.Suppliers.Update(supplier);
 
-            bool isChange = !changeSupplier.Equals(currentSupplier);
+            await _dbContext.SaveChangesAsync();
 
-            return isChange;
+            SupplierModel changeSupplier = base.GetById(supplier.Id);
+
+            return Convert.ToBoolean(!changeSupplier.Equals(currentSupplier ?? new()));
         }
 
         public async Task<bool> Remove(SupplierModel supplier)
         {
-            _dbContext?.Remove(supplier);
+            supplier = CheckParamterValidator.CheckIsNotNull(supplier, nameof(supplier));
 
-            await _dbContext?.SaveChangesAsync();
+            _dbContext.DetachLocal(supplier, supplier.Id);
 
-            bool isNotExist = !(await _dbContext?.Suppliers?.AnyAsync(x => x.Id == supplier.Id));
+            _dbContext.Suppliers.Remove(supplier);
 
-            return isNotExist;
+            await _dbContext.SaveChangesAsync();
+
+            return !(ExistById(supplier.Id));
         }
 
-        public async Task<bool> ExistByDocument(string document) => await _dbContext?.Suppliers?.AnyAsync(supplier => supplier.Document == document);
+        public bool ExistByDocument(string document) => _dbContext.Suppliers.Any(supplier => supplier.Document == document);
 
-        public async Task<bool> ExistByName(string name) => await _dbContext?.Suppliers?.AnyAsync(supplier => supplier.Name == name);
+        public bool ExistByName(string name) => _dbContext.Suppliers.Any(supplier => supplier.Name == name);
 
-        public async Task<bool> ExistById(Guid? id) => await _dbContext?.Suppliers?.AnyAsync(supplier => supplier.Id == id);
+        public bool ExistById(Guid? id) => _dbContext.Suppliers.Any(supplier => supplier.Id == id);
     }
 }

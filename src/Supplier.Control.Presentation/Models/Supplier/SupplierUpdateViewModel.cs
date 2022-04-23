@@ -8,6 +8,6 @@ namespace Supplier.Control.Presentation.Models.Supplier
         public bool CanUpdate { get; set; }
         public bool HasResult { get; set; }
         public bool SuccessAction { get; set; }
-        public string Message { get; set; }
+        public List<string> Message { get; set; } = new();
     }
 }

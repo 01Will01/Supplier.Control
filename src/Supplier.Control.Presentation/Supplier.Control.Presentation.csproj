@@ -17,6 +17,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Supplier.Control.Infra.CrossCutting\Supplier.Control.Infra.CrossCutting.csproj" />
+		<ProjectReference Include="..\Supplier.Control.Shared\Supplier.Control.Shared.csproj" />
 	</ItemGroup>
 
 </Project>

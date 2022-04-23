@@ -4,8 +4,8 @@ namespace Supplier.Control.Domain.Interfaces.Queries
 {
     public interface ISupplierQuery
     {
-        Task<List<SupplierModel>> GetAll();
-        Task<SupplierModel> GetById(Guid? id);
-        Task<SupplierModel> GetByDocument(string document);
+        List<SupplierModel> GetAll();
+        SupplierModel GetById(Guid? id);
+        SupplierModel GetByDocument(string document);
     }
 }

@@ -13,7 +13,7 @@ using Supplier.Control.Infra.Data.Repositories;
 
 namespace Supplier.Control.Infra.CrossCutting
 {
-    public class InjectionOfContainer
+    public static class InjectionOfContainer
     {
         public static void Configure(IServiceCollection services)
         {
@@ -22,11 +22,11 @@ namespace Supplier.Control.Infra.CrossCutting
             services.AddScoped<ISupplierQuery, SupplierQuery>();
 
             services.AddScoped<ISupplierHandlerCommand, SupplierHandlerCommand>();
-            
+
             services.AddScoped<ISupplierService, SupplierService>();
 
             services.AddScoped<ISupplierRepositoty, SupplierRepositoty>();
-            
+
         }
     }
 }

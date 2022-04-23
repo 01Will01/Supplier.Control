@@ -12,18 +12,44 @@
 </div>
 
 <br />
+
+@{
+    string showGroupMessage = Model.HasResult ? "display: block;" : "display: none;";
+    bool isMessageSuccess = Convert.ToBoolean(Model?.SuccessAction);
+
+    string showMessageAlert = isMessageSuccess ? "display: none" : "display: block;";
+}
+
+<div style="@showGroupMessage">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="@showMessageAlert" id="alert-warning">
+        <strong>Erro!</strong> Fornecedor não foi cadastrado.
+        <button type="button" class="close btn btn-outline-dark" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <hr />
+
+        @foreach (string message in Model.Message)
+        {
+            <p class="mb-0"> @message </p>
+            <hr />
+        }
+    </div>
+</div>
+
+<br />
+
 <div class="row" style="width: 100%; justify-content: center;">
     <div class="card text-white bg-dark mb-3" style="width: 60%; align-items: center;">
         <div class="card-header">
             Fornecedor
         </div>
         <div class="card-body">
-            <form asp-action="Create" style="text-align: center;">
+            <form asp-action="Create" style="text-align-last: center;">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="form-group">
                     <label asp-for="SupplierModel.Name" class="control-label"></label>
-                    <input asp-for="SupplierModel.Name" class="form-control" />
+                    <input asp-for="SupplierModel.Name" class="form-control" placeholder="Nome" style="text-align: center;"/>
                     <span asp-validation-for="SupplierModel.Name" class="text-danger"></span>
                 </div>
 
@@ -31,7 +57,7 @@
 
                 <div class="form-group">
                     <label asp-for="SupplierModel.Document" class="control-label"></label>
-                    <input asp-for="SupplierModel.Document" class="form-control" />
+                    <input asp-for="SupplierModel.Document" class="form-control" onkeypress='mascaraMutuario(this,cpfCnpj)' onblur='clearTimeout()' placeholder="CPF ou CNPJ" style="text-align: center;"/>
                     <span asp-validation-for="SupplierModel.Document" class="text-danger"></span>
                 </div>
 
@@ -54,55 +80,16 @@
             </form>
         </div>
     </div>
-
-    <p />
-    <hr />
-
-    @{
-        string showGroupMessage = Model.HasResult ? "display: block;" : "display: none;";
-        bool isMessageSuccess = Convert.ToBoolean(Model?.SuccessAction);
-
-        string showMessageSuccess = isMessageSuccess ? "display: block;" : "display: none;";
-        string showMessageAlert = isMessageSuccess ? "display: none" : "display: block;";
-
-        string message = Model?.Message;
-    }
-
-    <div style="@showGroupMessage">
-
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="@showMessageSuccess">
-            <h4 class="alert-heading">Concluído!</h4>
-            <p>Fornercedor cadastrado com sucesso.</p>
-            <hr>
-            <p class="mb-0">
-                @message
-
-                <button type="button" class="close btn btn-outline-dark" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </p>
-        </div>
-
-        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="@showMessageAlert">
-            <strong>Erro!</strong> Fornecedor não foi cadastrado.
-            <hr>
-            <p class="mb-0">
-                @message
-
-                <button type="button" class="close btn btn-outline-dark" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </p>
-        </div>
-    </div>
 </div>
 
 @section Scripts {
     @{
-    await Html.RenderPartialAsync("_ValidationScriptsPartial");
-}
+      await Html.RenderPartialAsync("_ValidationScriptsPartial");
+     }
 
 <script>
     $().alert('dispose')
+
+
 </script>
 }

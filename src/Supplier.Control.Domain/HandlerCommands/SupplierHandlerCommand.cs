@@ -6,6 +6,7 @@ using Supplier.Control.Domain.Interfaces.Handler;
 using Supplier.Control.Domain.Interfaces.Handler.Commands;
 using Supplier.Control.Domain.Interfaces.Services;
 using Supplier.Control.Domain.Models;
+using Supplier.Control.Domain.Validators;
 
 namespace Supplier.Control.Domain.HandlerCommands
 {
@@ -20,10 +21,10 @@ namespace Supplier.Control.Domain.HandlerCommands
 
         public async Task<ICommandResult> Handle(SupplierCreateCommand command)
         {
+            command = CheckParamterValidator.CheckIsNotNull(command, nameof(command));
             command.Validate();
 
             if (!command.IsValid) return new GenericCommandResult(success: false, message: "Os dados estão com divergência.", command.Notifications);
-
 
             var supplier = new SupplierModel()
             {
@@ -32,21 +33,17 @@ namespace Supplier.Control.Domain.HandlerCommands
                 IsActive = command.IsActive
             };
 
-            (SupplierModel currentSupplier, bool isExist, string message) = await _supplierService.Create(supplier);
+            (bool hasCreated, string message) = await _supplierService.Create(supplier);
 
-            if (isExist)
-                return new GenericCommandResult(success: isExist, message: message, currentSupplier);
-
-            return new GenericCommandResult(success: isExist, message: message, supplier);
+            return new GenericCommandResult(success: hasCreated, message: message, supplier);
         }
-
 
         public async Task<ICommandResult> Handle(SupplierUpdateCommand command)
         {
+            command = CheckParamterValidator.CheckIsNotNull(command, nameof(command));
             command.Validate();
 
-            if (command.IsValid) return new GenericCommandResult(success: false, message: "Os dados estão com divergência", command.Notifications);
-
+            if (!command.IsValid) return new GenericCommandResult(success: false, message: "Os dados estão com divergência", command.Notifications);
 
             var supplier = new SupplierModel()
             {
@@ -56,20 +53,17 @@ namespace Supplier.Control.Domain.HandlerCommands
                 IsActive = command.IsActive
             };
 
-            bool status = await _supplierService.Updade(supplier);
+            (bool hasUpdate, string message) = await _supplierService.Update(supplier);
 
-            if (status)
-                return new GenericCommandResult(success: false, message: "Atualização completa.", new { });
-
-            return new GenericCommandResult(success: false, message: "Falha na etapa de atualização dos dados do fornecedor.", command.Notifications);
+            return new GenericCommandResult(success: hasUpdate, message: message, supplier);
         }
 
         public async Task<ICommandResult> Handle(SupplierrRemoveCommand command)
         {
+            command = CheckParamterValidator.CheckIsNotNull(command, nameof(command));
             command.Validate();
 
-            if (command.IsValid) return new GenericCommandResult(success: false, message: "Os dados estão com divergência.", command.Notifications);
-
+            if (!command.IsValid) return new GenericCommandResult(success: false, message: "Os dados estão com divergência.", command.Notifications);
 
             var supplier = new SupplierModel()
             {

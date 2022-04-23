@@ -1,6 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using Supplier.Control.Domain.Interfaces.DbContext;
+﻿using Supplier.Control.Domain.Interfaces.DbContext;
 using Supplier.Control.Domain.Interfaces.Queries;
 using Supplier.Control.Domain.Models;
 
@@ -14,10 +12,10 @@ namespace Supplier.Control.Infra.Data.Queries
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<List<SupplierModel>> GetAll() => await _dbContext?.Suppliers?.ToListAsync();
+        public List<SupplierModel> GetAll() => _dbContext?.Suppliers?.ToList();
 
-        public async Task<SupplierModel> GetById(Guid? id) => await _dbContext?.Suppliers?.FirstOrDefaultAsync(supplier => supplier.Id == id);
+        public SupplierModel GetById(Guid? id) => _dbContext?.Suppliers?.FirstOrDefault(supplier => supplier.Id == id);
 
-        public async Task<SupplierModel> GetByDocument(string document) => await _dbContext?.Suppliers?.FirstOrDefaultAsync(supplier => supplier.Document == document);
+        public SupplierModel GetByDocument(string document) => _dbContext?.Suppliers?.FirstOrDefault(supplier => supplier.Document == document);
     }
 }

@@ -19,9 +19,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/fornecedor", async (
+app.MapGet("/fornecedor", (
     ISupplierQuery _query) =>
-    await _query.GetAll())
+    _query.GetAll())
     .WithName("GetSupplier")
     .WithTags("Supplier");
 
