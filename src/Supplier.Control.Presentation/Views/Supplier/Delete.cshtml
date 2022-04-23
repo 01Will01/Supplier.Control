@@ -1,0 +1,84 @@
+﻿@using Supplier.Control.Presentation.Models.Supplier
+@model SupplierRemoveViewModel
+
+@{
+    ViewData["Title"] = "Remoção";
+}
+
+<h1>Remover</h1>
+
+<div>
+    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+</div>
+
+<br />
+
+@{
+    string showGroupMessage = Model.HasResult ? "display: block;" : "display: none;";
+    bool isMessageSuccess = Convert.ToBoolean(Model?.SuccessAction);
+
+    string showMessageAlert = isMessageSuccess ? "display: none" : "display: block;";
+
+}
+
+<div style="@showGroupMessage">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="@showMessageAlert" id="alert-warning">
+        <strong>Erro!</strong> Fornecedor não foi removido.
+        <button type="button" class="close btn btn-outline-dark" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <hr />
+        @foreach (string message in Model.Message)
+        {
+            <p class="mb-0"> @message </p>
+            <hr />
+        }
+    </div>
+</div>
+
+<br />
+
+<h3>Realmente quer remover este fornecedor?</h3>
+
+<div class="row" style="width: 100%; justify-content: center;">
+    <div class="card text-white bg-dark mb-3" style="width: 70%; align-items: center;">
+        <div class="card-header">
+            Detalhes
+        </div>
+        <div class="card-body">
+            <dl class="row" style="text-align: center; justify-content: center;">
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => model.SupplierModel.Name):
+                </dt>
+                <dd class="col-sm-20">
+                    @Html.DisplayFor(model => model.SupplierModel.Name)
+                </dd>
+
+                <hr />
+
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => model.SupplierModel.Document)
+                </dt>
+                <dd class="col-sm-20">
+                    @Html.DisplayFor(model => model.SupplierModel.Document)
+                </dd>
+
+                <hr />
+
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => model.SupplierModel.IsActive)
+                </dt>
+                <dd class="col-sm-20">
+                    @Html.DisplayFor(model => model.SupplierModel.IsActive)
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="SupplierModel.Id" />
+    <input type="submit" value="Retirar" class="btn btn-danger" />
+</form>
+
+

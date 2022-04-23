@@ -1,6 +1,11 @@
+using Supplier.Control.Infra.CrossCutting;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+InjectionOfContainer.Configure(builder.Services);
+SharedConfiguration.Configure(builder.Services);
 
 var app = builder.Build();
 
@@ -11,6 +16,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
