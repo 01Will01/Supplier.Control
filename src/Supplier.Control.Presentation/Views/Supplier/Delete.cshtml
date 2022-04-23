@@ -8,7 +8,7 @@
 <h1>Remover</h1>
 
 <div>
-    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+    <a class="btn btn-primary" asp-action="Index"><i class="bi bi-house-fill" title="Visão Geral"></i></a>
 </div>
 
 <br />
@@ -78,7 +78,14 @@
 
 <form asp-action="Delete">
     <input type="hidden" asp-for="SupplierModel.Id" />
-    <input type="submit" value="Retirar" class="btn btn-danger" />
+    @{
+        string showSalve = Model.CanRemove ? "display: block;" : "display: none;";
+    }
+    <div class="form-group" style="@showSalve">
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash3-fill" title="Remover fornecedor"></i>
+        </button>
+    </div>
 </form>
 
 
