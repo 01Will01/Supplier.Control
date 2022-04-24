@@ -7,8 +7,9 @@
 
 <h1>Atualizar os dados</h1>
 
-<div>
-    <a class="btn btn-primary" asp-action="Index"><i class="bi bi-house-fill" title="Visão Geral"></i></a>
+<div style="display: flex; flex-direction: row;">
+    <a class="btn btn-dark" style="margin: 0 0 0 0.5vw;" asp-action="Details" asp-route-id="@Model.SupplierModel.Id"><i class="bi bi-arrow-90deg-left" title="Voltar"></i></a>
+    <a class="btn btn-primary" style="margin: 0 0 0 0.5vw;" asp-action="Index"><i class="bi bi-house-fill" title="Visão Geral"></i></a>
 </div>
 
 <br />
@@ -67,8 +68,8 @@
                 string showSalve = Model.CanUpdate ? "display: block;" : "display: none;";
             }
             <div class="form-group" style="@showSalve">
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-save-fill"></i>
+                <button type="submit" class="btn btn-success" style="animation: pulse-green 2s infinite;">
+                    <i class="bi bi-send-check-fill" title="Confirmar atualização"></i>
                 </button>
             </div>
         </form>

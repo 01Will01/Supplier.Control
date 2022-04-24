@@ -7,8 +7,9 @@
 
 <h1>Remover</h1>
 
-<div>
-    <a class="btn btn-primary" asp-action="Index"><i class="bi bi-house-fill" title="Visão Geral"></i></a>
+<div style="display: flex; flex-direction: row;">
+    <a class="btn btn-dark" style="margin: 0 0 0 0.5vw;" asp-action="Details" asp-route-id="@Model.SupplierModel.Id"><i class="bi bi-arrow-90deg-left" title="Voltar"></i></a>
+    <a class="btn btn-primary" style="margin: 0 0 0 0.5vw;" asp-action="Index"><i class="bi bi-house-fill" title="Visão Geral"></i></a>
 </div>
 
 <br />
@@ -38,17 +39,15 @@
 
 <br />
 
-<h3>Realmente quer remover este fornecedor?</h3>
-
 <div class="row" style="width: 100%; justify-content: center;">
     <div class="card text-white bg-dark mb-3" style="width: 70%; align-items: center;">
         <div class="card-header">
-            Detalhes
+            <h3>Realmente quer remover este fornecedor?</h3>
         </div>
         <div class="card-body">
             <dl class="row" style="text-align: center; justify-content: center;">
                 <dt class="col-sm-5">
-                    @Html.DisplayNameFor(model => model.SupplierModel.Name):
+                    @Html.DisplayNameFor(model => model.SupplierModel.Name)
                 </dt>
                 <dd class="col-sm-20">
                     @Html.DisplayFor(model => model.SupplierModel.Name)
@@ -69,23 +68,26 @@
                     @Html.DisplayNameFor(model => model.SupplierModel.IsActive)
                 </dt>
                 <dd class="col-sm-20">
-                    @Html.DisplayFor(model => model.SupplierModel.IsActive)
+                    @{
+                        string descriptopnIsActive = Model.SupplierModel.IsActive ? "Sim" : "Não";
+                    }
+                    @descriptopnIsActive
                 </dd>
             </dl>
         </div>
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="SupplierModel.Id" />
+            @{
+                string showSalve = Model.CanRemove ? "display: block;" : "display: none;";
+            }
+            <div class="form-group" style="@showSalve">
+                <button type="submit" class="btn btn-danger" style="animation: pulse-red 2s infinite;">
+                    <i class="bi bi-send-x-fill" title="Remover fornecedor"></i>
+                </button>
+            </div>
+        </form>
+        <hr />
     </div>
 </div>
-
-<form asp-action="Delete">
-    <input type="hidden" asp-for="SupplierModel.Id" />
-    @{
-        string showSalve = Model.CanRemove ? "display: block;" : "display: none;";
-    }
-    <div class="form-group" style="@showSalve">
-        <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash3-fill" title="Remover fornecedor"></i>
-        </button>
-    </div>
-</form>
 
 
