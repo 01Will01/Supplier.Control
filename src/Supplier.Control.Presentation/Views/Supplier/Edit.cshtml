@@ -7,8 +7,9 @@
 
 <h1>Atualizar os dados</h1>
 
-<div>
-    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+<div style="display: flex; flex-direction: row;">
+    <a class="btn btn-dark" style="margin: 0 0 0 0.5vw;" asp-action="Details" asp-route-id="@Model.SupplierModel.Id"><i class="bi bi-arrow-90deg-left" title="Voltar"></i></a>
+    <a class="btn btn-primary" style="margin: 0 0 0 0.5vw;" asp-action="Index"><i class="bi bi-house-fill" title="Visão Geral"></i></a>
 </div>
 
 <br />
@@ -47,13 +48,13 @@
             <input type="hidden" asp-for="SupplierModel.Id" />
             <div class="form-group form-group-default required">
                 <label asp-for="SupplierModel.Name" class="control-label"></label>
-                <input asp-for="SupplierModel.Name" class="form-control" placeholder="Nome" style="text-align: center;"/>
+                <input asp-for="SupplierModel.Name" class="form-control" placeholder="Nome" style="text-align: center;" />
                 <span asp-validation-for="SupplierModel.Name" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group form-group-default required">
                 <label asp-for="SupplierModel.Document" class="control-label"></label>
-                <input asp-for="SupplierModel.Document" class="form-control cpfAndcpnj" onkeypress='mascaraMutuario(this,cpfCnpj)' onblur='clearTimeout()' maxlength="18" placeholder="CPF ou CNPJ" style="text-align: center;"/>
+                <input asp-for="SupplierModel.Document" class="form-control cpfAndcpnj" onkeypress='mascaraMutuario(this,cpfCnpj)' onblur='clearTimeout()' maxlength="18" placeholder="CPF ou CNPJ" style="text-align: center;" />
                 <span asp-validation-for="SupplierModel.Document" class="text-danger"></span>
             </div>
             <br />
@@ -63,8 +64,13 @@
                 </label>
             </div>
             <br />
-            <div class="form-group">
-                <input type="submit" value="Salvar" class="btn btn-success" />
+            @{
+                string showSalve = Model.CanUpdate ? "display: block;" : "display: none;";
+            }
+            <div class="form-group" style="@showSalve">
+                <button type="submit" class="btn btn-success" style="animation: pulse-green 2s infinite;">
+                    <i class="bi bi-send-check-fill" title="Confirmar atualização"></i>
+                </button>
             </div>
         </form>
     </div>

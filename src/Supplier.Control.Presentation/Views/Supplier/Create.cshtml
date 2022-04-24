@@ -8,7 +8,7 @@
 <h1>Incluir</h1>
 
 <div>
-    <a class="btn btn-primary" asp-action="Index">Voltar</a>
+    <a class="btn btn-dark" asp-action="Index"><i class="bi bi-arrow-90deg-left" title="Voltar"></i></i></a>
 </div>
 
 <br />
@@ -49,7 +49,7 @@
 
                 <div class="form-group">
                     <label asp-for="SupplierModel.Name" class="control-label"></label>
-                    <input asp-for="SupplierModel.Name" class="form-control" placeholder="Nome" style="text-align: center;"/>
+                    <input asp-for="SupplierModel.Name" class="form-control" placeholder="Nome" style="text-align: center;" />
                     <span asp-validation-for="SupplierModel.Name" class="text-danger"></span>
                 </div>
 
@@ -57,15 +57,15 @@
 
                 <div class="form-group">
                     <label asp-for="SupplierModel.Document" class="control-label"></label>
-                    <input asp-for="SupplierModel.Document" class="form-control" onkeypress='mascaraMutuario(this,cpfCnpj)' onblur='clearTimeout()' placeholder="CPF ou CNPJ" style="text-align: center;"/>
+                    <input asp-for="SupplierModel.Document" class="form-control" onkeypress='mascaraMutuario(this,cpfCnpj)' onblur='clearTimeout()' placeholder="CPF ou CNPJ" style="text-align: center;" />
                     <span asp-validation-for="SupplierModel.Document" class="text-danger"></span>
                 </div>
 
                 <br />
 
-                <div class="btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-secondary active">
-                        <input type="checkbox" checked autocomplete="off" asp-for="SupplierModel.IsActive"> @Html.DisplayNameFor(model => model.SupplierModel.IsActive)
+                <div class="form-group form-check required">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="SupplierModel.IsActive" /> @Html.DisplayNameFor(model => model.SupplierModel.IsActive)
                     </label>
                 </div>
 
@@ -75,7 +75,9 @@
                     string showSalve = Model.CanCreate ? "display: block;" : "display: none;";
                 }
                 <div class="form-group" style="@showSalve">
-                    <input type="submit" class="btn btn-success" value="Salvar" />
+                    <button type="submit" class="btn btn-success" style="animation: pulse-green 2s infinite;">
+                        <i class="bi bi-send-plus-fill" title="Confirmar inclusão"></i>
+                    </button>
                 </div>
             </form>
         </div>
